@@ -4,10 +4,10 @@
 #include "Adafruit_GFX.h"
 #include "Arduino.h"
 #include "Print.h"
-#include "Adafruit_SPITFT_DBI_TYPE_C_MODIFIED.h"
+#include "Adafruit_SPITFT_DBI_TYPE_C.h"
 #include <SPI.h>
 
-#define ILI9327_TFTWIDTH 400  ///< ILI9327 max TFT width
+#define ILI9327_TFTWIDTH 432  ///< ILI9327 max TFT width
 #define ILI9327_TFTHEIGHT 240 ///< ILI9327 max TFT height
 
 #define ILI9327_NOP 0x00     ///< No-op register
@@ -89,7 +89,7 @@
 #define ILI9327_GREENYELLOW 0xAFE5 ///< 173, 255,  41
 #define ILI9327_PINK 0xFC18        ///< 255, 130, 198
 
-class ILI9327 : public Adafruit_SPITFT_DBI_TYPE_C_MODIFIED {
+class ILI9327 : public Adafruit_SPITFT_DBI_TYPE_C {
  private:
  public:
   ILI9327(int8_t cs, int8_t dc, int8_t mosi, int8_t scl, int8_t rst, int8_t miso);

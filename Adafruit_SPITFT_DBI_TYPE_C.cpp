@@ -1,5 +1,5 @@
 /*!
- * @file Adafruit_SPITFT_DBI_TYPE_C_MODIFIED.cpp
+ * @file Adafruit_SPITFT_DBI_TYPE_C.cpp
  *
  * @mainpage Adafruit SPI TFT Displays (and some others)
  *
@@ -33,7 +33,7 @@
 
 #if !defined(__AVR_ATtiny85__) // Not for ATtiny, at all
 
-#include "Adafruit_SPITFT_DBI_TYPE_C_MODIFIED.h"
+#include "Adafruit_SPITFT_DBI_TYPE_C.h"
 
 #if defined(__AVR__)
 #if defined(__AVR_XMEGA__) // only tested with __AVR_ATmega4809__
@@ -91,7 +91,7 @@ static const struct {
 
 #endif // end USE_SPI_DMA
 
-// Possible values for Adafruit_SPITFT_DBI_TYPE_C_MODIFIED.connection:
+// Possible values for Adafruit_SPITFT_DBI_TYPE_C.connection:
 #define TFT_HARD_SPI 0 ///< Display interface = hardware SPI
 #define TFT_SOFT_SPI 1 ///< Display interface = software SPI
 #define TFT_PARALLEL 2 ///< Display interface = 8- or 16-bit parallel
@@ -99,7 +99,7 @@ static const struct {
 // CONSTRUCTORS ------------------------------------------------------------
 
 /*!
-    @brief   Adafruit_SPITFT_DBI_TYPE_C_MODIFIED constructor for software (bitbang) SPI.
+    @brief   Adafruit_SPITFT_DBI_TYPE_C constructor for software (bitbang) SPI.
     @param   w     Display width in pixels at default rotation setting (0).
     @param   h     Display height in pixels at default rotation setting (0).
     @param   cs    Arduino pin # for chip-select (-1 if unused, tie CS low).
@@ -114,7 +114,7 @@ static const struct {
              need to call subclass' begin() function, which in turn calls
              this library's initSPI() function to initialize pins.
 */
-Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_t w, uint16_t h, int8_t cs, int8_t dc,
+Adafruit_SPITFT_DBI_TYPE_C::Adafruit_SPITFT_DBI_TYPE_C(uint16_t w, uint16_t h, int8_t cs, int8_t dc,
                                  int8_t mosi, int8_t sck, int8_t rst,
                                  int8_t miso)
     : Adafruit_GFX(w, h), connection(TFT_SOFT_SPI), _rst(rst), _cs(cs),
@@ -219,18 +219,10 @@ Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_
   swspi.mosiPinMaskClr = ~swspi.mosiPinMaskSet;
 #endif // !end HAS_PORT_SET_CLR
 #endif // end USE_FAST_PINIO
-#ifndef _swap_int16_t
-#define _swap_int16_t(a, b)                                                    \
-  {                                                                            \
-    int16_t t = a;                                                             \
-    a = b;                                                                     \
-    b = t;                                                                     \
-  }
-#endif
 }
 
 /*!
-    @brief   Adafruit_SPITFT_DBI_TYPE_C_MODIFIED constructor for hardware SPI using the board's
+    @brief   Adafruit_SPITFT_DBI_TYPE_C constructor for hardware SPI using the board's
              default SPI peripheral.
     @param   w     Display width in pixels at default rotation setting (0).
     @param   h     Display height in pixels at default rotation setting (0).
@@ -243,16 +235,16 @@ Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_
              this library's initSPI() function to initialize pins.
 */
 #if defined(ESP8266) // See notes below
-Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_t w, uint16_t h, int8_t cs, int8_t dc,
+Adafruit_SPITFT_DBI_TYPE_C::Adafruit_SPITFT_DBI_TYPE_C(uint16_t w, uint16_t h, int8_t cs, int8_t dc,
                                  int8_t rst)
     : Adafruit_GFX(w, h), connection(TFT_HARD_SPI), _rst(rst), _cs(cs),
       _dc(dc) {
   hwspi._spi = &SPI;
 }
 #else  // !ESP8266
-Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_t w, uint16_t h, int8_t cs, int8_t dc,
+Adafruit_SPITFT_DBI_TYPE_C::Adafruit_SPITFT_DBI_TYPE_C(uint16_t w, uint16_t h, int8_t cs, int8_t dc,
                                  int8_t rst)
-    : Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(w, h, &SPI, cs, dc, rst) {
+    : Adafruit_SPITFT_DBI_TYPE_C(w, h, &SPI, cs, dc, rst) {
   // This just invokes the hardware SPI constructor below,
   // passing the default SPI device (&SPI).
 }
@@ -266,7 +258,7 @@ Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_
 // but if there's any library out there that creates a 'virtual' SPIClass
 // peripheral and drives it with software bitbanging, that's not supported.
 /*!
-    @brief   Adafruit_SPITFT_DBI_TYPE_C_MODIFIED constructor for hardware SPI using a specific
+    @brief   Adafruit_SPITFT_DBI_TYPE_C constructor for hardware SPI using a specific
              SPI peripheral.
     @param   w         Display width in pixels at default rotation (0).
     @param   h         Display height in pixels at default rotation (0).
@@ -286,7 +278,7 @@ Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_
              GPIO manually. Do this BEFORE calling the display-specific
              begin or init function. Unfortunate but unavoidable.
 */
-Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_t w, uint16_t h, SPIClass *spiClass,
+Adafruit_SPITFT_DBI_TYPE_C::Adafruit_SPITFT_DBI_TYPE_C(uint16_t w, uint16_t h, SPIClass *spiClass,
                                  int8_t cs, int8_t dc, int8_t rst)
     : Adafruit_GFX(w, h), connection(TFT_HARD_SPI), _rst(rst), _cs(cs),
       _dc(dc) {
@@ -352,7 +344,7 @@ Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_
 #endif // end !ESP8266
 
 /*!
-    @brief   Adafruit_SPITFT_DBI_TYPE_C_MODIFIED constructor for parallel display connection.
+    @brief   Adafruit_SPITFT_DBI_TYPE_C constructor for parallel display connection.
     @param   w         Display width in pixels at default rotation (0).
     @param   h         Display height in pixels at default rotation (0).
     @param   busWidth  If tft16 (enumeration in header file), is a 16-bit
@@ -382,7 +374,7 @@ Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_
              only SPI displays, parallel being a recent addition (but not
              wanting to break existing code).
 */
-Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_t w, uint16_t h, tftBusWidth busWidth,
+Adafruit_SPITFT_DBI_TYPE_C::Adafruit_SPITFT_DBI_TYPE_C(uint16_t w, uint16_t h, tftBusWidth busWidth,
                                  int8_t d0, int8_t wr, int8_t dc, int8_t cs,
                                  int8_t rst, int8_t rd)
     : Adafruit_GFX(w, h), connection(TFT_PARALLEL), _rst(rst), _cs(cs),
@@ -532,7 +524,7 @@ Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_
             could probably be made private...quite a few class functions
             were generously put in the public section.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::initSPI(uint32_t freq, uint8_t spiMode) {
+void Adafruit_SPITFT_DBI_TYPE_C::initSPI(uint32_t freq, uint8_t spiMode) {
 
   if (!freq)
     freq = DEFAULT_SPI_FREQ; // If no freq specified, use default
@@ -903,7 +895,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::initSPI(uint32_t freq, uint8_t spiMode
     @param  freq Desired frequency of SPI clock, may not be the
     end frequency you get based on what the chip can do!
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::setSPISpeed(uint32_t freq) {
+void Adafruit_SPITFT_DBI_TYPE_C::setSPISpeed(uint32_t freq) {
 #if defined(SPI_HAS_TRANSACTION)
   hwspi.settings = SPISettings(freq, MSBFIRST, hwspi._mode);
 #else
@@ -917,7 +909,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::setSPISpeed(uint32_t freq) {
             using hardware SPI and transactions are supported). Required
             for all display types; not an SPI-specific function.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::startWrite(void) {
+void Adafruit_SPITFT_DBI_TYPE_C::startWrite(void) {
   SPI_BEGIN_TRANSACTION();
   if (_cs >= 0)
     SPI_CS_LOW();
@@ -929,7 +921,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::startWrite(void) {
             using hardware SPI and transactions are supported). Required
             for all display types; not an SPI-specific function.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::endWrite(void) {
+void Adafruit_SPITFT_DBI_TYPE_C::endWrite(void) {
   if (_cs >= 0)
     SPI_CS_HIGH();
   SPI_END_TRANSACTION();
@@ -950,14 +942,14 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::endWrite(void) {
     @param  y      Vertical position   (0 = top).
     @param  color  16-bit pixel color in '565' RGB format.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writePixel(int16_t x, int16_t y, uint16_t color) {
+void Adafruit_SPITFT_DBI_TYPE_C::writePixel(int16_t x, int16_t y, uint16_t color) {
   if ((x >= 0) && (x < _width) && (y >= 0) && (y < _height)) {
     setAddrWindow(x, y, 1, 1);
     writePixel(color);
   }
 }
 
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writePixel(uint16_t color) {
+void Adafruit_SPITFT_DBI_TYPE_C::writePixel(uint16_t color) {
     spiWrite(blueBrightness(color));
     spiWrite(greenBrightness(color));
     spiWrite(redBrightness(color));
@@ -973,7 +965,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writePixel(uint16_t color) {
                   otherwise, if NULL (default) or same address is passed,
                   pixel buffer is overwritten in-place.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::swapBytes(uint16_t *src, uint32_t len, uint16_t *dest) {
+void Adafruit_SPITFT_DBI_TYPE_C::swapBytes(uint16_t *src, uint32_t len, uint16_t *dest) {
   if (!dest)
     dest = src; // NULL -> overwrite src buffer
   for (uint32_t i = 0; i < len; i++) {
@@ -1006,7 +998,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::swapBytes(uint16_t *src, uint32_t len,
                        big-endian, this can save time here, ESPECIALLY if
                        using this function's non-blocking DMA mode.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writePixels(uint16_t *colors, uint32_t len, bool block,
+void Adafruit_SPITFT_DBI_TYPE_C::writePixels(uint16_t *colors, uint32_t len, bool block,
                                   bool bigEndian) {
 
   if (!len)
@@ -1168,7 +1160,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writePixels(uint16_t *colors, uint32_t
             is not enabled, and is not needed if blocking writePixels()
             was used (as is the default case).
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::dmaWait(void) {
+void Adafruit_SPITFT_DBI_TYPE_C::dmaWait(void) {
 #if defined(USE_SPI_DMA) && (defined(__SAMD51__) || defined(ARDUINO_SAMD_ZERO))
   while (dma_busy)
     ;
@@ -1188,7 +1180,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::dmaWait(void) {
             is not enabled.
     @return true if DMA is enabled and transmitting data, false otherwise.
 */
-bool Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::dmaBusy(void) const {
+bool Adafruit_SPITFT_DBI_TYPE_C::dmaBusy(void) const {
 #if defined(USE_SPI_DMA) && (defined(__SAMD51__) || defined(ARDUINO_SAMD_ZERO))
   return dma_busy;
 #else
@@ -1202,7 +1194,7 @@ bool Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::dmaBusy(void) const {
     @param  color  16-bit pixel color in '565' RGB format.
     @param  len    Number of pixels to draw.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeColor(uint16_t color, uint32_t len) {
+void Adafruit_SPITFT_DBI_TYPE_C::writeColor(uint16_t color, uint32_t len) {
   if (!len)
     return; // Avoid 0-byte transfers
 
@@ -1496,7 +1488,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeColor(uint16_t color, uint32_t le
             optimize for the 'if' case, not the 'else' -- avoids branches
             and rejects clipped rectangles at the least-work possibility.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeFillRect(int16_t x, int16_t y, int16_t w, int16_t h,
+void Adafruit_SPITFT_DBI_TYPE_C::writeFillRect(int16_t x, int16_t y, int16_t w, int16_t h,
                                     uint16_t color) {
   if (w && h) {   // Nonzero width and height?
     if (w < 0) {  // If negative width...
@@ -1548,7 +1540,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeFillRect(int16_t x, int16_t y, in
                    negative = point of first corner).
     @param  color  16-bit line color in '565' RGB format.
 */
-void inline Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeFastHLine(int16_t x, int16_t y, int16_t w,
+void inline Adafruit_SPITFT_DBI_TYPE_C::writeFastHLine(int16_t x, int16_t y, int16_t w,
                                             uint16_t color) {
   if ((y >= 0) && (y < _height) && w) { // Y on screen, nonzero width
     if (w < 0) {                        // If negative width...
@@ -1584,7 +1576,7 @@ void inline Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeFastHLine(int16_t x, int16
                    negative = above first point).
     @param  color  16-bit line color in '565' RGB format.
 */
-void inline Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeFastVLine(int16_t x, int16_t y, int16_t h,
+void inline Adafruit_SPITFT_DBI_TYPE_C::writeFastVLine(int16_t x, int16_t y, int16_t h,
                                             uint16_t color) {
   if ((x >= 0) && (x < _width) && h) { // X on screen, nonzero height
     if (h < 0) {                       // If negative height...
@@ -1604,46 +1596,6 @@ void inline Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeFastVLine(int16_t x, int16
         } // Clip bottom
         writeFillRectPreclipped(x, y, 1, h, color);
       }
-    }
-  }
-}
-
-void inline Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-                                            uint16_t color) {
-  int16_t steep = abs(y1 - y0) > abs(x1 - x0);
-  if (steep) {
-    _swap_int16_t(x0, y0);
-    _swap_int16_t(x1, y1);
-  }
-
-  if (x0 > x1) {
-    _swap_int16_t(x0, x1);
-    _swap_int16_t(y0, y1);
-  }
-
-  int16_t dx, dy;
-  dx = x1 - x0;
-  dy = abs(y1 - y0);
-
-  int16_t err = dx / 2;
-  int16_t ystep;
-
-  if (y0 < y1) {
-    ystep = 1;
-  } else {
-    ystep = -1;
-  }
-
-  for (; x0 <= x1; x0++) {
-    if (steep) {
-      writePixel(y0, x0, color);
-    } else {
-      writePixel(x0, y0, color);
-    }
-    err -= dy;
-    if (err < 0) {
-      y0 += ystep;
-      err += dx;
     }
   }
 }
@@ -1668,7 +1620,7 @@ void inline Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeLine(int16_t x0, int16_t y
     @note   This is a new function, no graphics primitives besides rects
             and horizontal/vertical lines are written to best use this yet.
 */
-inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeFillRectPreclipped(int16_t x, int16_t y,
+inline void Adafruit_SPITFT_DBI_TYPE_C::writeFillRectPreclipped(int16_t x, int16_t y,
                                                      int16_t w, int16_t h,
                                                      uint16_t color) {
   setAddrWindow(x, y, w, h);
@@ -1692,7 +1644,7 @@ inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeFillRectPreclipped(int16_t
     @param  y      Vertical position   (0 = top).
     @param  color  16-bit pixel color in '565' RGB format.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawPixel(int16_t x, int16_t y, uint16_t color) {
+void Adafruit_SPITFT_DBI_TYPE_C::drawPixel(int16_t x, int16_t y, uint16_t color) {
   // Clip first...
   if ((x >= 0) && (x < _width) && (y >= 0) && (y < _height)) {
     // THEN set up transaction (if needed) and draw...
@@ -1700,26 +1652,6 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawPixel(int16_t x, int16_t y, uint16
     writePixel(x, y, color);
     endWrite();
   }
-}
-
-/**************************************************************************/
-/*!
-   @brief   Draw a rectangle with no fill color
-    @param    x   Top left corner x coordinate
-    @param    y   Top left corner y coordinate
-    @param    w   Width in pixels
-    @param    h   Height in pixels
-    @param    color 16-bit 5-6-5 Color to draw with
-*/
-/**************************************************************************/
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawRect(int16_t x, int16_t y, int16_t w, int16_t h,
-                            uint16_t color) {
-  startWrite();
-  writeFastHLine(x, y, w, color);
-  writeFastHLine(x, y + h - 1, w, color);
-  writeFastVLine(x, y, h, color);
-  writeFastVLine(x + w - 1, y, h, color);
-  endWrite();
 }
 
 /*!
@@ -1741,7 +1673,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawRect(int16_t x, int16_t y, int16_t
             performed at all if the rectangle is rejected. It's really not
             that much code.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
+void Adafruit_SPITFT_DBI_TYPE_C::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
                                uint16_t color) {
   if (w && h) {   // Nonzero width and height?
     if (w < 0) {  // If negative width...
@@ -1799,7 +1731,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::fillRect(int16_t x, int16_t y, int16_t
             writeFastHLine() to handle clipping and so forth) so that the
             transaction isn't performed at all if the line is rejected.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawFastHLine(int16_t x, int16_t y, int16_t w,
+void Adafruit_SPITFT_DBI_TYPE_C::drawFastHLine(int16_t x, int16_t y, int16_t w,
                                     uint16_t color) {
   if ((y >= 0) && (y < _height) && w) { // Y on screen, nonzero width
     if (w < 0) {                        // If negative width...
@@ -1840,7 +1772,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawFastHLine(int16_t x, int16_t y, in
             writeFastVLine() to handle clipping and so forth) so that the
             transaction isn't performed at all if the line is rejected.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawFastVLine(int16_t x, int16_t y, int16_t h,
+void Adafruit_SPITFT_DBI_TYPE_C::drawFastVLine(int16_t x, int16_t y, int16_t h,
                                     uint16_t color) {
   if ((x >= 0) && (x < _width) && h) { // X on screen, nonzero height
     if (h < 0) {                       // If negative height...
@@ -1866,376 +1798,6 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawFastVLine(int16_t x, int16_t y, in
   }
 }
 
-// /**************************************************************************/
-// /*!
-//    @brief    Draw a line
-//     @param    x0  Start point x coordinate
-//     @param    y0  Start point y coordinate
-//     @param    x1  End point x coordinate
-//     @param    y1  End point y coordinate
-//     @param    color 16-bit 5-6-5 Color to draw with
-// */
-// /**************************************************************************/
-// void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-//                                     uint16_t color) {
-//   // Update in subclasses if desired!
-//   if (x0 == x1) {
-//     if (y0 > y1)
-//       _swap_int16_t(y0, y1);
-//     drawFastVLine(x0, y0, y1 - y0 + 1, color);
-//   } else if (y0 == y1) {
-//     if (x0 > x1)
-//       _swap_int16_t(x0, x1);
-//     drawFastHLine(x0, y0, x1 - x0 + 1, color);
-//   } else {
-//     startWrite();
-//     writeLine(x0, y0, x1, y1, color);
-//     endWrite();
-//   }
-// }
-
-// /**************************************************************************/
-// /*!
-//    @brief    Draw a circle outline
-//     @param    x0   Center-point x coordinate
-//     @param    y0   Center-point y coordinate
-//     @param    r   Radius of circle
-//     @param    color 16-bit 5-6-5 Color to draw with
-// */
-// /**************************************************************************/
-// void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawCircle(int16_t x0, int16_t y0, int16_t r,
-//                               uint16_t color) {
-// #if defined(ESP8266)
-//   yield();
-// #endif
-//   int16_t f = 1 - r;
-//   int16_t ddF_x = 1;
-//   int16_t ddF_y = -2 * r;
-//   int16_t x = 0;
-//   int16_t y = r;
-
-//   startWrite();
-//   writePixel(x0, y0 + r, color);
-//   writePixel(x0, y0 - r, color);
-//   writePixel(x0 + r, y0, color);
-//   writePixel(x0 - r, y0, color);
-
-//   while (x < y) {
-//     if (f >= 0) {
-//       y--;
-//       ddF_y += 2;
-//       f += ddF_y;
-//     }
-//     x++;
-//     ddF_x += 2;
-//     f += ddF_x;
-
-//     writePixel(x0 + x, y0 + y, color);
-//     writePixel(x0 - x, y0 + y, color);
-//     writePixel(x0 + x, y0 - y, color);
-//     writePixel(x0 - x, y0 - y, color);
-//     writePixel(x0 + y, y0 + x, color);
-//     writePixel(x0 - y, y0 + x, color);
-//     writePixel(x0 + y, y0 - x, color);
-//     writePixel(x0 - y, y0 - x, color);
-//   }
-//   endWrite();
-// }
-
-// /**************************************************************************/
-// /*!
-//     @brief    Quarter-circle drawer, used to do circles and roundrects
-//     @param    x0   Center-point x coordinate
-//     @param    y0   Center-point y coordinate
-//     @param    r   Radius of circle
-//     @param    cornername  Mask bit #1 or bit #2 to indicate which quarters of
-//    the circle we're doing
-//     @param    color 16-bit 5-6-5 Color to draw with
-// */
-// /**************************************************************************/
-// void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawCircleHelper(int16_t x0, int16_t y0, int16_t r,
-//                                     uint8_t cornername, uint16_t color) {
-//   int16_t f = 1 - r;
-//   int16_t ddF_x = 1;
-//   int16_t ddF_y = -2 * r;
-//   int16_t x = 0;
-//   int16_t y = r;
-//   int16_t xold = x;
-
-//   while (x < y) {
-//     if (f >= 0) {
-//       y--;
-//       ddF_y += 2;
-//       f += ddF_y;
-//     }
-//     x++;
-//     ddF_x += 2;
-//     f += ddF_x;
-//     if (f >= 0 || x == y) {
-//       if (cornername & 0x4) { // SE
-//         drawFastHLine(x0 + xold + 1, y0 + y, x - xold, color);
-//         drawFastVLine(x0 + y, y0 + xold + 1, x - xold, color);
-//       }
-//       if (cornername & 0x2) { // NE
-//         drawFastHLine(x0 + xold + 1, y0 - y, x - xold, color);
-//         drawFastVLine(x0 + y, y0 - x, x - xold, color);
-//       }
-//       if (cornername & 0x8) { // SW
-//         drawFastVLine(x0 - y, y0 + xold + 1, x - xold, color);
-//         drawFastHLine(x0 - x, y0 + y, x - xold, color);
-//       }
-//       if (cornername & 0x1) { // NW
-//         drawFastVLine(x0 - y, y0 - x, x - xold, color);
-//         drawFastHLine(x0 - x, y0 - y, x - xold, color);
-//       }
-//       xold = x;
-//     }
-//   }
-// }
-
-// /**************************************************************************/
-// /*!
-//    @brief    Draw a circle with filled color
-//     @param    x0   Center-point x coordinate
-//     @param    y0   Center-point y coordinate
-//     @param    r   Radius of circle
-//     @param    color 16-bit 5-6-5 Color to fill with
-// */
-// /**************************************************************************/
-// void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::fillCircle(int16_t x0, int16_t y0, int16_t r,
-//                               uint16_t color) {
-//   startWrite();
-//   writeFastVLine(x0, y0 - r, 2 * r + 1, color);
-//   fillCircleHelper(x0, y0, r, 3, 0, color);
-//   endWrite();
-// }
-
-// /**************************************************************************/
-// /*!
-//     @brief  Quarter-circle drawer with fill, used for circles and roundrects
-//     @param  x0       Center-point x coordinate
-//     @param  y0       Center-point y coordinate
-//     @param  r        Radius of circle
-//     @param  corners  Mask bits indicating which quarters we're doing
-//     @param  delta    Offset from center-point, used for round-rects
-//     @param  color    16-bit 5-6-5 Color to fill with
-// */
-// /**************************************************************************/
-// void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
-//                                     uint8_t corners, int16_t delta,
-//                                     uint16_t color) {
-
-//   int16_t f = 1 - r;
-//   int16_t ddF_x = 1;
-//   int16_t ddF_y = -2 * r;
-//   int16_t x = 0;
-//   int16_t y = r;
-//   int16_t px = x;
-//   int16_t py = y;
-
-//   delta++; // Avoid some +1's in the loop
-
-//   while (x < y) {
-//     if (f >= 0) {
-//       y--;
-//       ddF_y += 2;
-//       f += ddF_y;
-//     }
-//     x++;
-//     ddF_x += 2;
-//     f += ddF_x;
-//     // These checks avoid double-drawing certain lines, important
-//     // for the SSD1306 library which has an INVERT drawing mode.
-//     if (x < (y + 1)) {
-//       if (corners & 1)
-//         writeFastVLine(x0 + x, y0 - y, 2 * y + delta, color);
-//       if (corners & 2)
-//         writeFastVLine(x0 - x, y0 - y, 2 * y + delta, color);
-//     }
-//     if (y != py) {
-//       if (corners & 1)
-//         writeFastVLine(x0 + py, y0 - px, 2 * px + delta, color);
-//       if (corners & 2)
-//         writeFastVLine(x0 - py, y0 - px, 2 * px + delta, color);
-//       py = y;
-//     }
-//     px = x;
-//   }
-// }
-
-// /**************************************************************************/
-// /*!
-//    @brief   Draw a triangle with no fill color
-//     @param    x0  Vertex #0 x coordinate
-//     @param    y0  Vertex #0 y coordinate
-//     @param    x1  Vertex #1 x coordinate
-//     @param    y1  Vertex #1 y coordinate
-//     @param    x2  Vertex #2 x coordinate
-//     @param    y2  Vertex #2 y coordinate
-//     @param    color 16-bit 5-6-5 Color to draw with
-// */
-// /**************************************************************************/
-// void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-//                                 int16_t x2, int16_t y2, uint16_t color) {
-//   drawLine(x0, y0, x1, y1, color);
-//   drawLine(x1, y1, x2, y2, color);
-//   drawLine(x2, y2, x0, y0, color);
-// }
-
-// /**************************************************************************/
-// /*!
-//    @brief     Draw a triangle with color-fill
-//     @param    x0  Vertex #0 x coordinate
-//     @param    y0  Vertex #0 y coordinate
-//     @param    x1  Vertex #1 x coordinate
-//     @param    y1  Vertex #1 y coordinate
-//     @param    x2  Vertex #2 x coordinate
-//     @param    y2  Vertex #2 y coordinate
-//     @param    color 16-bit 5-6-5 Color to fill/draw with
-// */
-// /**************************************************************************/
-// void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-//                                 int16_t x2, int16_t y2, uint16_t color) {
-
-//   int16_t a, b, y, last;
-
-//   // Sort coordinates by Y order (y2 >= y1 >= y0)
-//   if (y0 > y1) {
-//     _swap_int16_t(y0, y1);
-//     _swap_int16_t(x0, x1);
-//   }
-//   if (y1 > y2) {
-//     _swap_int16_t(y2, y1);
-//     _swap_int16_t(x2, x1);
-//   }
-//   if (y0 > y1) {
-//     _swap_int16_t(y0, y1);
-//     _swap_int16_t(x0, x1);
-//   }
-
-//   startWrite();
-//   if (y0 == y2) { // Handle awkward all-on-same-line case as its own thing
-//     a = b = x0;
-//     if (x1 < a)
-//       a = x1;
-//     else if (x1 > b)
-//       b = x1;
-//     if (x2 < a)
-//       a = x2;
-//     else if (x2 > b)
-//       b = x2;
-//     writeFastHLine(a, y0, b - a + 1, color);
-//     endWrite();
-//     return;
-//   }
-
-//   int16_t dx01 = x1 - x0, dy01 = y1 - y0, dx02 = x2 - x0, dy02 = y2 - y0,
-//           dx12 = x2 - x1, dy12 = y2 - y1;
-//   int32_t sa = 0, sb = 0;
-
-//   // For upper part of triangle, find scanline crossings for segments
-//   // 0-1 and 0-2.  If y1=y2 (flat-bottomed triangle), the scanline y1
-//   // is included here (and second loop will be skipped, avoiding a /0
-//   // error there), otherwise scanline y1 is skipped here and handled
-//   // in the second loop...which also avoids a /0 error here if y0=y1
-//   // (flat-topped triangle).
-//   if (y1 == y2)
-//     last = y1; // Include y1 scanline
-//   else
-//     last = y1 - 1; // Skip it
-
-//   for (y = y0; y <= last; y++) {
-//     a = x0 + sa / dy01;
-//     b = x0 + sb / dy02;
-//     sa += dx01;
-//     sb += dx02;
-//     /* longhand:
-//     a = x0 + (x1 - x0) * (y - y0) / (y1 - y0);
-//     b = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
-//     */
-//     if (a > b)
-//       _swap_int16_t(a, b);
-//     writeFastHLine(a, y, b - a + 1, color);
-//   }
-
-//   // For lower part of triangle, find scanline crossings for segments
-//   // 0-2 and 1-2.  This loop is skipped if y1=y2.
-//   sa = (int32_t)dx12 * (y - y1);
-//   sb = (int32_t)dx02 * (y - y0);
-//   for (; y <= y2; y++) {
-//     a = x1 + sa / dy12;
-//     b = x0 + sb / dy02;
-//     sa += dx12;
-//     sb += dx02;
-//     /* longhand:
-//     a = x1 + (x2 - x1) * (y - y1) / (y2 - y1);
-//     b = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
-//     */
-//     if (a > b)
-//       _swap_int16_t(a, b);
-//     writeFastHLine(a, y, b - a + 1, color);
-//   }
-//   endWrite();
-// }
-
-// /**************************************************************************/
-// /*!
-//    @brief   Draw a rounded rectangle with no fill color
-//     @param    x   Top left corner x coordinate
-//     @param    y   Top left corner y coordinate
-//     @param    w   Width in pixels
-//     @param    h   Height in pixels
-//     @param    r   Radius of corner rounding
-//     @param    color 16-bit 5-6-5 Color to draw with
-// */
-// /**************************************************************************/
-// void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h,
-//                                  int16_t r, uint16_t color) {
-//   int16_t max_radius = ((w < h) ? w : h) / 2; // 1/2 minor axis
-//   if (r > max_radius)
-//     r = max_radius;
-//   // smarter version
-//   startWrite();
-//   writeFastHLine(x + r, y, w - 2 * r, color);         // Top
-//   writeFastHLine(x + r, y + h - 1, w - 2 * r, color); // Bottom
-//   writeFastVLine(x, y + r, h - 2 * r, color);         // Left
-//   writeFastVLine(x + w - 1, y + r, h - 2 * r, color); // Right
-//   // draw four corners
-//   drawCircleHelper(x + r, y + r, r, 1, color);
-//   drawCircleHelper(x + w - r - 1, y + r, r, 2, color);
-//   drawCircleHelper(x + w - r - 1, y + h - r - 1, r, 4, color);
-//   drawCircleHelper(x + r, y + h - r - 1, r, 8, color);
-//   endWrite();
-// }
-
-// /**************************************************************************/
-// /*!
-//    @brief   Draw a rounded rectangle with fill color
-//     @param    x   Top left corner x coordinate
-//     @param    y   Top left corner y coordinate
-//     @param    w   Width in pixels
-//     @param    h   Height in pixels
-//     @param    r   Radius of corner rounding
-//     @param    color 16-bit 5-6-5 Color to draw/fill with
-// */
-// /**************************************************************************/
-// void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::fillRoundRect(int16_t x, int16_t y, int16_t w, int16_t h,
-//                                  int16_t r, uint16_t color) {
-//   int16_t max_radius = ((w < h) ? w : h) / 2; // 1/2 minor axis
-//   if (r > max_radius)
-//     r = max_radius;
-//   // smarter version
-//   startWrite();
-//   writeFillRect(x + r, y, w - 2 * r, h, color);
-//   // draw four corners
-//   fillCircleHelper(x + w - r - 1, y + r, r, 1, h - 2 * r - 1, color);
-//   fillCircleHelper(x + r, y + r, r, 2, h - 2 * r - 1, color);
-//   endWrite();
-// }
-
-
-
-
 /*!
     @brief  Essentially writePixel() with a transaction around it. I don't
             think this is in use by any of our code anymore (believe it was
@@ -2243,7 +1805,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawFastVLine(int16_t x, int16_t y, in
             any user code relies on it. Consider it DEPRECATED.
     @param  color  16-bit pixel color in '565' RGB format.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::pushColor(uint16_t color) {
+void Adafruit_SPITFT_DBI_TYPE_C::pushColor(uint16_t color) {
   startWrite();
   writePixel(color);
   endWrite();
@@ -2265,7 +1827,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::pushColor(uint16_t color) {
     @param  w        Width of bitmap in pixels.
     @param  h        Height of bitmap in pixels.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawRGBBitmap(int16_t x, int16_t y, uint16_t *pcolors,
+void Adafruit_SPITFT_DBI_TYPE_C::drawRGBBitmap(int16_t x, int16_t y, uint16_t *pcolors,
                                     int16_t w, int16_t h) {
 
   int16_t x2, y2;                 // Lower-right coord
@@ -2310,7 +1872,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::drawRGBBitmap(int16_t x, int16_t y, ui
             Self-contained, no transaction setup required.
     @param  i  true = inverted display, false = normal display.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::invertDisplay(bool i) {
+void Adafruit_SPITFT_DBI_TYPE_C::invertDisplay(bool i) {
   startWrite();
   writeCommand(i ? invertOnCommand : invertOffCommand);
   endWrite();
@@ -2326,30 +1888,30 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::invertDisplay(bool i) {
     @param   blue   8-bit blue brightnesss (0 = off, 255 = max).
     @return  'Packed' 16-bit color value (565 format).
 */
-uint16_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::color565(uint8_t red, uint8_t green, uint8_t blue) {
+uint16_t Adafruit_SPITFT_DBI_TYPE_C::color565(uint8_t red, uint8_t green, uint8_t blue) {
   return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
 }
 
-uint8_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::redBrightness(uint16_t color) {
+uint8_t Adafruit_SPITFT_DBI_TYPE_C::redBrightness(uint16_t color) {
   return color >> 8 & 0XF8;
 }
 
-uint8_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::greenBrightness(uint16_t color) {
+uint8_t Adafruit_SPITFT_DBI_TYPE_C::greenBrightness(uint16_t color) {
   return color >> 3 & 0XFC;
 }
 
-uint8_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::blueBrightness(uint16_t color) {
+uint8_t Adafruit_SPITFT_DBI_TYPE_C::blueBrightness(uint16_t color) {
   return color << 3 & 0XF8;
 }
 
 /*!
-@brief   Adafruit_SPITFT_DBI_TYPE_C_MODIFIED Send Command handles complete sending of commands and
+@brief   Adafruit_SPITFT_DBI_TYPE_C Send Command handles complete sending of commands and
 data
 @param   commandByte       The Command Byte
 @param   dataBytes         A pointer to the Data bytes to send
 @param   numDataBytes      The number of bytes we should send
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::sendCommand(uint8_t commandByte, uint8_t *dataBytes,
+void Adafruit_SPITFT_DBI_TYPE_C::sendCommand(uint8_t commandByte, uint8_t *dataBytes,
                                   uint8_t numDataBytes) {
   SPI_BEGIN_TRANSACTION();
   if (_cs >= 0)
@@ -2375,13 +1937,13 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::sendCommand(uint8_t commandByte, uint8
 }
 
 /*!
- @brief   Adafruit_SPITFT_DBI_TYPE_C_MODIFIED Send Command handles complete sending of commands and
+ @brief   Adafruit_SPITFT_DBI_TYPE_C Send Command handles complete sending of commands and
  data
  @param   commandByte       The Command Byte
  @param   dataBytes         A pointer to the Data bytes to send
  @param   numDataBytes      The number of bytes we should send
  */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::sendCommand(uint8_t commandByte, const uint8_t *dataBytes,
+void Adafruit_SPITFT_DBI_TYPE_C::sendCommand(uint8_t commandByte, const uint8_t *dataBytes,
                                   uint8_t numDataBytes) {
   SPI_BEGIN_TRANSACTION();
   if (_cs >= 0)
@@ -2406,7 +1968,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::sendCommand(uint8_t commandByte, const
 }
 
 /*!
- @brief  Adafruit_SPITFT_DBI_TYPE_C_MODIFIED sendCommand16 handles complete sending of
+ @brief  Adafruit_SPITFT_DBI_TYPE_C sendCommand16 handles complete sending of
          commands and data for 16-bit parallel displays. Currently somewhat
          rigged for the NT35510, which has the odd behavior of wanting
          commands 16-bit, but subsequent data as 8-bit values, despite
@@ -2416,7 +1978,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::sendCommand(uint8_t commandByte, const
  @param  dataBytes     A pointer to the data bytes to send
  @param  numDataBytes  The number of bytes we should send
  */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::sendCommand16(uint16_t commandWord,
+void Adafruit_SPITFT_DBI_TYPE_C::sendCommand16(uint16_t commandWord,
                                     const uint8_t *dataBytes,
                                     uint8_t numDataBytes) {
   SPI_BEGIN_TRANSACTION();
@@ -2452,7 +2014,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::sendCommand16(uint16_t commandWord,
  @return  Unsigned 8-bit data read from display register.
  */
 /**************************************************************************/
-uint8_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::readcommand8(uint8_t commandByte, uint8_t index) {
+uint8_t Adafruit_SPITFT_DBI_TYPE_C::readcommand8(uint8_t commandByte, uint8_t index) {
   uint8_t result;
   startWrite();
   SPI_DC_LOW(); // Command mode
@@ -2471,7 +2033,7 @@ uint8_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::readcommand8(uint8_t commandByte, u
  @param   addr  Command/register to access.
  @return  Unsigned 16-bit data.
  */
-uint16_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::readcommand16(uint16_t addr) {
+uint16_t Adafruit_SPITFT_DBI_TYPE_C::readcommand16(uint16_t addr) {
 #if defined(USE_FAST_PINIO) // NOT SUPPORTED without USE_FAST_PINIO
   uint16_t result = 0;
   if ((connection == TFT_PARALLEL) && tft8.wide) {
@@ -2513,7 +2075,7 @@ uint16_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::readcommand16(uint16_t addr) {
             chip-select operation -- see startWrite() for a function that
             encapsulated both actions.
 */
-inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_BEGIN_TRANSACTION(void) {
+inline void Adafruit_SPITFT_DBI_TYPE_C::SPI_BEGIN_TRANSACTION(void) {
   if (connection == TFT_HARD_SPI) {
 #if defined(SPI_HAS_TRANSACTION)
     hwspi._spi->beginTransaction(hwspi.settings);
@@ -2541,7 +2103,7 @@ inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_BEGIN_TRANSACTION(void) {
             NOT include a chip-deselect operation -- see endWrite() for a
             function that encapsulated both actions.
 */
-inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_END_TRANSACTION(void) {
+inline void Adafruit_SPITFT_DBI_TYPE_C::SPI_END_TRANSACTION(void) {
 #if defined(SPI_HAS_TRANSACTION)
   if (connection == TFT_HARD_SPI) {
     hwspi._spi->endTransaction();
@@ -2558,7 +2120,7 @@ inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_END_TRANSACTION(void) {
             This function is used even if display connection is parallel.
     @param  b  8-bit value to write.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::spiWrite(uint8_t b) {
+void Adafruit_SPITFT_DBI_TYPE_C::spiWrite(uint8_t b) {
   if (connection == TFT_HARD_SPI) {
 #if defined(__AVR__)
     AVR_WRITESPI(b);
@@ -2601,7 +2163,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::spiWrite(uint8_t b) {
             function -- just use spiWrite().
     @param  cmd  8-bit command to write.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeCommand(uint8_t cmd) {
+void Adafruit_SPITFT_DBI_TYPE_C::writeCommand(uint8_t cmd) {
   SPI_DC_LOW();
   spiWrite(cmd);
   SPI_DC_HIGH();
@@ -2617,7 +2179,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeCommand(uint8_t cmd) {
     @return  Unsigned 8-bit value read (always zero if USE_FAST_PINIO is
              not supported by the MCU architecture).
 */
-uint8_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::spiRead(void) {
+uint8_t Adafruit_SPITFT_DBI_TYPE_C::spiRead(void) {
   uint8_t b = 0;
   uint16_t w = 0;
   if (connection == TFT_HARD_SPI) {
@@ -2680,7 +2242,7 @@ uint8_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::spiRead(void) {
             Thus operates ONLY on 'wide' (16-bit) parallel displays!
     @param  w  16-bit value to write.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::write16(uint16_t w) {
+void Adafruit_SPITFT_DBI_TYPE_C::write16(uint16_t w) {
   if (connection == TFT_PARALLEL) {
 #if defined(USE_FAST_PINIO)
     if (tft8.wide)
@@ -2700,7 +2262,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::write16(uint16_t w) {
             displays!
     @param  cmd  16-bit command to write.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeCommand16(uint16_t cmd) {
+void Adafruit_SPITFT_DBI_TYPE_C::writeCommand16(uint16_t cmd) {
   SPI_DC_LOW();
   write16(cmd);
   SPI_DC_HIGH();
@@ -2714,7 +2276,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::writeCommand16(uint16_t cmd) {
     @return  Unsigned 16-bit value read (always zero if USE_FAST_PINIO is
              not supported by the MCU architecture).
 */
-uint16_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::read16(void) {
+uint16_t Adafruit_SPITFT_DBI_TYPE_C::read16(void) {
   uint16_t w = 0;
   if (connection == TFT_PARALLEL) {
     if (tft8._rd >= 0) {
@@ -2743,7 +2305,7 @@ uint16_t Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::read16(void) {
 /*!
     @brief  Set the software (bitbang) SPI MOSI line HIGH.
 */
-inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_MOSI_HIGH(void) {
+inline void Adafruit_SPITFT_DBI_TYPE_C::SPI_MOSI_HIGH(void) {
 #if defined(USE_FAST_PINIO)
 #if defined(HAS_PORT_SET_CLR)
 #if defined(KINETISK)
@@ -2766,7 +2328,7 @@ inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_MOSI_HIGH(void) {
 /*!
     @brief  Set the software (bitbang) SPI MOSI line LOW.
 */
-inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_MOSI_LOW(void) {
+inline void Adafruit_SPITFT_DBI_TYPE_C::SPI_MOSI_LOW(void) {
 #if defined(USE_FAST_PINIO)
 #if defined(HAS_PORT_SET_CLR)
 #if defined(KINETISK)
@@ -2789,7 +2351,7 @@ inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_MOSI_LOW(void) {
 /*!
     @brief  Set the software (bitbang) SPI SCK line HIGH.
 */
-inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_SCK_HIGH(void) {
+inline void Adafruit_SPITFT_DBI_TYPE_C::SPI_SCK_HIGH(void) {
 #if defined(USE_FAST_PINIO)
 #if defined(HAS_PORT_SET_CLR)
 #if defined(KINETISK)
@@ -2816,7 +2378,7 @@ inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_SCK_HIGH(void) {
 /*!
     @brief  Set the software (bitbang) SPI SCK line LOW.
 */
-inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_SCK_LOW(void) {
+inline void Adafruit_SPITFT_DBI_TYPE_C::SPI_SCK_LOW(void) {
 #if defined(USE_FAST_PINIO)
 #if defined(HAS_PORT_SET_CLR)
 #if defined(KINETISK)
@@ -2844,7 +2406,7 @@ inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_SCK_LOW(void) {
     @brief   Read the state of the software (bitbang) SPI MISO line.
     @return  true if HIGH, false if LOW.
 */
-inline bool Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_MISO_READ(void) {
+inline bool Adafruit_SPITFT_DBI_TYPE_C::SPI_MISO_READ(void) {
 #if defined(USE_FAST_PINIO)
 #if defined(KINETISK)
   return *swspi.misoPort;
@@ -2866,7 +2428,7 @@ inline bool Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_MISO_READ(void) {
             that. Again, staying compatible with outside code.
     @param  w  16-bit value to write.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_WRITE16(uint16_t w) {
+void Adafruit_SPITFT_DBI_TYPE_C::SPI_WRITE16(uint16_t w) {
   if (connection == TFT_HARD_SPI) {
 #if defined(__AVR__)
     AVR_WRITESPI(w >> 8);
@@ -2920,7 +2482,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_WRITE16(uint16_t w) {
             Sorry about that. Again, staying compatible with outside code.
     @param  l  32-bit value to write.
 */
-void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_WRITE32(uint32_t l) {
+void Adafruit_SPITFT_DBI_TYPE_C::SPI_WRITE32(uint32_t l) {
   if (connection == TFT_HARD_SPI) {
 #if defined(__AVR__)
     AVR_WRITESPI(l >> 24);
@@ -2981,7 +2543,7 @@ void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::SPI_WRITE32(uint32_t l) {
     @brief  Set the WR line LOW, then HIGH. Used for parallel-connected
             interfaces when writing data.
 */
-inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::TFT_WR_STROBE(void) {
+inline void Adafruit_SPITFT_DBI_TYPE_C::TFT_WR_STROBE(void) {
 #if defined(USE_FAST_PINIO)
 #if defined(HAS_PORT_SET_CLR)
 #if defined(KINETISK)
@@ -3005,7 +2567,7 @@ inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::TFT_WR_STROBE(void) {
     @brief  Set the RD line HIGH. Used for parallel-connected interfaces
             when reading data.
 */
-inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::TFT_RD_HIGH(void) {
+inline void Adafruit_SPITFT_DBI_TYPE_C::TFT_RD_HIGH(void) {
 #if defined(USE_FAST_PINIO)
 #if defined(HAS_PORT_SET_CLR)
   *tft8.rdPortSet = tft8.rdPinMask;
@@ -3021,7 +2583,7 @@ inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::TFT_RD_HIGH(void) {
     @brief  Set the RD line LOW. Used for parallel-connected interfaces
             when reading data.
 */
-inline void Adafruit_SPITFT_DBI_TYPE_C_MODIFIED::TFT_RD_LOW(void) {
+inline void Adafruit_SPITFT_DBI_TYPE_C::TFT_RD_LOW(void) {
 #if defined(USE_FAST_PINIO)
 #if defined(HAS_PORT_SET_CLR)
   *tft8.rdPortClr = tft8.rdPinMask;

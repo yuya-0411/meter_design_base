@@ -2,24 +2,27 @@
 #include <EEPROM.h>
 
 #include "ILI9327.h"
-#include "meter_base7.h"
+#include "meter_base8.h"
 #include <SPI.h>
 
 // #include <Fonts\FreeSansBold24pt7b.h>
 // #include <Fonts\DSEG7_Modern_Bold_24.h>
 #include <Fonts\custom_windows_arial_24.h>
-
+#include <Fonts\FreeSans9pt7b.h>
 
 #define DISPLAY_CS 5
-#define DISPLAY_DC 26
+#define DISPLAY_DC 16
 #define DISPLAY_MOSI 23
 #define DISPLAY_MISO 19
 #define DISPLAY_SCK 18
-#define DISPLAY_RST 27
+#define DISPLAY_RST 17
+
+const uint8_t display_bias_x = 365;
+const uint8_t display_bias_w = 35;
 
 uint16_t x_0 = 0;
 uint16_t y_0 = 0;
-uint16_t b_x = 325;
+uint16_t b_x = 325-display_bias_w;
 uint16_t b_y = 120;
 uint16_t r  = 40;
 
@@ -32,14 +35,13 @@ uint16_t y_2_old=y_1;
 
 ILI9327 display(DISPLAY_CS, DISPLAY_DC, &SPI, DISPLAY_RST);
 
-
 uint16_t winker_coor[6][3] = {
   {76, 23, 1},
   {52, 23, 5},
   {20, 23, 10},
-  {323, 23, 1},
-  {347, 23, 5},
-  {379, 23, 10}
+  {323-display_bias_w, 23, 1},
+  {347-display_bias_w, 23, 5},
+  {379-display_bias_w, 23, 10}
 };
 
 uint16_t color_table[] = {
@@ -72,6 +74,22 @@ uint16_t bt_table[6][2] = {
   {21, 219}
 };
 
+uint16_t horn_table[9][2] = {
+  // triangle 
+  {135, 220},
+  {135, 205},
+  {144, 213},
+  
+  // rectangle
+  {142, 210},
+  {42, 5},    // width, height
+
+  // line
+  {152, 214},
+  {152, 223},
+  {179, 223},
+  {179, 214},
+};
 
 
 Ticker winker_left;
@@ -81,7 +99,6 @@ int winker_count_right = 0;
 
 Ticker battery;
 int remained_battery = 4;
-int old_remained_battery = remained_battery;
 bool charge = false;
 
 Ticker bluetooth;
@@ -89,6 +106,13 @@ int buletooth_on = false;
 
 Ticker light;
 int light_on = false;
+
+Ticker horn;
+int horn_on = false;
+
+Ticker odo;
+int odo_val = 0;
+int odo_old_val = odo_val;
 
 void setup()
 {
@@ -130,14 +154,12 @@ void setup()
 
     // バッテリ残量
     battery.attach(1.0, [](){
-    display.fillRect(330+10*remained_battery, 210, 9, 20, ILI9327_BLACK);
+    display.fillRect(330-display_bias_w+10*remained_battery, 210, 9, 20, ILI9327_BLACK);
     if(charge){
-      display.fillRect(330+10*remained_battery, 210, 9, 20, ILI9327_GREEN);
-      // old_remained_battery = remained_battery;
+      display.fillRect(330-display_bias_w+10*remained_battery, 210, 9, 20, ILI9327_GREEN);
       remained_battery++;
     }
     else{
-      // old_remained_battery = remained_battery;
       remained_battery--;
     }
 
@@ -181,7 +203,77 @@ void setup()
   });
 
 
+  // Horn
+  horn.attach(1.0, [](){
+    if(horn_on){
+      // triangle
+      display.fillTriangle(
+        horn_table[0][0], horn_table[0][1],
+        horn_table[1][0], horn_table[1][1],
+        horn_table[2][0], horn_table[2][1],
+        ILI9327_YELLOW
+        );
+      
+      // rectangle
+      display.fillRect(
+        horn_table[3][0], horn_table[3][1],
+        horn_table[4][0], horn_table[4][1],
+        ILI9327_YELLOW
+        );
 
+      // line
+      for(int i=5; i<8; i++){
+        display.drawLine(
+          horn_table[i][0], horn_table[i][1],
+          horn_table[i+1][0], horn_table[i+1][1],
+          ILI9327_YELLOW
+        );
+      }
+      
+    }
+    else{
+            // triangle
+      display.fillTriangle(
+        horn_table[0][0], horn_table[0][1],
+        horn_table[1][0], horn_table[1][1],
+        horn_table[2][0], horn_table[2][1],
+        ILI9327_BLACK
+        );
+      
+      // rectangle
+      display.fillRect(
+        horn_table[3][0], horn_table[3][1],
+        horn_table[4][0], horn_table[4][1],
+        ILI9327_BLACK
+        );
+
+      // line
+      for(int i=5; i<8; i++){
+        display.drawLine(
+          horn_table[i][0], horn_table[i][1],
+          horn_table[i+1][0], horn_table[i+1][1],
+          ILI9327_BLACK
+        );
+      }
+    }
+    horn_on = !horn_on;
+  });
+
+
+  // ODO
+  odo.attach(3.0, [](){
+    display.setFont(&FreeSans9pt7b);
+    display.setTextSize(1);
+    display.setTextColor(ILI9327_BLACK, ILI9327_BLACK);
+    display.setCursor(221,234);
+    display.println(odo_val);  // クリア
+    // display.setTextSize(3);
+    odo_val++;
+    display.setTextColor(ILI9327_WHITE, ILI9327_WHITE);               // 描画
+    display.setCursor(221,234);
+    display.println(odo_val);  // クリア
+
+  });
   delay(10);
 }
 
@@ -197,7 +289,7 @@ bool flag=true;
 
 void loop()
 {
-
+  // 文字をいい感じ配置するためのバイアス
   if(max_mph*(i-min_range)/(max_range - min_range) != max_mph*(oi-min_range)/(max_range - min_range)){
     if(max_mph*(oi-min_range)/(max_range - min_range) < 10){
       aa = 2.5;
@@ -211,14 +303,16 @@ void loop()
     else{
       bb = 1; 
       }
+
+    //デジタル表示 
     display.setFont(&custom_windows_arial_24);
     display.setTextSize(3);
     display.setTextColor(ILI9327_BLACK, ILI9327_BLACK);
-    display.setCursor(40*aa,150);
-    display.println(max_mph*(oi-min_range)/(max_range - min_range));
+    display.setCursor(40*aa-display_bias_w,150);
+    display.println(max_mph*(oi-min_range)/(max_range - min_range));  // クリア
     // display.setTextSize(3);
-    display.setTextColor(ILI9327_WHITE, ILI9327_WHITE);
-    display.setCursor(40*bb,150);
+    display.setTextColor(ILI9327_WHITE, ILI9327_WHITE);               // 描画
+    display.setCursor(40*bb-display_bias_w,150);
     display.println(max_mph*(i-min_range)/(max_range - min_range));
   }
   oi = i;

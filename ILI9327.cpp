@@ -1,7 +1,7 @@
 #include "Adafruit_GFX.h"
 #include "Arduino.h"
 #include "Print.h"
-#include "Adafruit_SPITFT_DBI_TYPE_C_MODIFIED.h"
+#include "Adafruit_SPITFT_DBI_TYPE_C.h"
 #include <SPI.h>
 #include <limits.h>
 
@@ -27,22 +27,22 @@
 #endif
 
 ILI9327::ILI9327(int8_t cs, int8_t dc, int8_t mosi, int8_t scl, int8_t rst = -1, int8_t miso = -1)
-    : Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(ILI9327_TFTWIDTH, ILI9327_TFTHEIGHT, cs, dc, mosi, scl, rst, miso)
+    : Adafruit_SPITFT_DBI_TYPE_C(ILI9327_TFTWIDTH, ILI9327_TFTHEIGHT, cs, dc, mosi, scl, rst, miso)
 {
 }
 
 ILI9327::ILI9327(int8_t cs, int8_t dc, SPIClass *spi, int8_t rst = -1)
-    : Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(ILI9327_TFTWIDTH, ILI9327_TFTHEIGHT, spi, cs, dc, rst)
+    : Adafruit_SPITFT_DBI_TYPE_C(ILI9327_TFTWIDTH, ILI9327_TFTHEIGHT, spi, cs, dc, rst)
 {
 }
 
 // clang-format off
 static const uint8_t PROGMEM initcmd[] = {
-  ILI9327_MADCTL  , 1, 0x20,             // Memory Access Control
+  ILI9327_MADCTL  , 1, 0b11100000,             // Memory Access Control
   ILI9327_VSCRSADD, 1, 0x00,             // Vertical scroll zero
   ILI9327_PIXFMT  , 1, 0x06,
-  ILI9327_SLPOUT  , 0,                // Exit Sleep
-  ILI9327_DISPON  , 0,                // Display on
+  ILI9327_SLPOUT  , 0,                   // Exit Sleep
+  ILI9327_DISPON  , 0,                   // Display on
   0x00                                   // End of list
 };
 // clang-format on
@@ -74,9 +74,12 @@ void ILI9327::begin(uint32_t freq)
 }
 
 void ILI9327::setAddrWindow(uint16_t x1, uint16_t y1, uint16_t w,
-                                     uint16_t h) {
+                            uint16_t h)
+{
   static uint16_t old_x1 = 0xffff, old_x2 = 0xffff;
   static uint16_t old_y1 = 0xffff, old_y2 = 0xffff;
+
+  x1 += 32; // 32だけずらす
 
   uint16_t x2 = (x1 + w - 1), y2 = (y1 + h - 1);
   if (x1 != old_x1 || x2 != old_x2) {

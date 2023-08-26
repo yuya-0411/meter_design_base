@@ -1,9 +1,9 @@
 /**
- * @file Adafruit_SPITFT_DBI_TYPE_C_modified.h
+ * @file Adafruit_SPITFT_DBI_TYPE_C.h
  */
 
-#ifndef _ADAFRUIT_SPITFT_DBI_TYPE_C_MODIFIED_H_
-#define _ADAFRUIT_SPITFT_DBI_TYPE_C_MODIFIED_H_
+#ifndef _ADAFRUIT_SPITFT_DBI_TYPE_C_H_
+#define _ADAFRUIT_SPITFT_DBI_TYPE_C_H_
 
 #if !defined(__AVR_ATtiny85__) // Not for ATtiny, at all
 
@@ -90,7 +90,7 @@ enum tftBusWidth { tft8bitbus, tft16bitbus };
 // CLASS DEFINITION --------------------------------------------------------
 
 /*!
-  @brief  Adafruit_SPITFT_DBI_TYPE_C_MODIFIED is an intermediary class between Adafruit_GFX
+  @brief  Adafruit_SPITFT_DBI_TYPE_C is an intermediary class between Adafruit_GFX
           and various hardware-specific subclasses for different displays.
           It handles certain operations that are common to a range of
           displays (address window, area fills, etc.). Originally these were
@@ -102,7 +102,7 @@ enum tftBusWidth { tft8bitbus, tft16bitbus };
           again to avoid breaking a lot of other code. If in doubt, read
           the comments.
 */
-class Adafruit_SPITFT_DBI_TYPE_C_MODIFIED : public Adafruit_GFX {
+class Adafruit_SPITFT_DBI_TYPE_C : public Adafruit_GFX {
 
 public:
   // CONSTRUCTORS --------------------------------------------------------
@@ -112,7 +112,7 @@ public:
   // (reset, miso). cs argument is required but can be -1 if unused --
   // rather than moving it to the optional arguments, it was done this way
   // to avoid breaking existing code (-1 option was a later addition).
-  Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_t w, uint16_t h, int8_t cs, int8_t dc, int8_t mosi,
+  Adafruit_SPITFT_DBI_TYPE_C(uint16_t w, uint16_t h, int8_t cs, int8_t dc, int8_t mosi,
                   int8_t sck, int8_t rst = -1, int8_t miso = -1);
 
   // Hardware SPI constructor using the default SPI port: expects width &
@@ -120,14 +120,14 @@ public:
   // optional reset pin. cs is required but can be -1 if unused -- rather
   // than moving it to the optional arguments, it was done this way to
   // avoid breaking existing code (-1 option was a later addition).
-  Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_t w, uint16_t h, int8_t cs, int8_t dc,
+  Adafruit_SPITFT_DBI_TYPE_C(uint16_t w, uint16_t h, int8_t cs, int8_t dc,
                   int8_t rst = -1);
 
 #if !defined(ESP8266) // See notes in .cpp
   // Hardware SPI constructor using an arbitrary SPI peripheral: expects
   // width & height (rotation 0), SPIClass pointer, 2 signal pins (cs, dc)
   // and optional reset pin. cs is required but can be -1 if unused.
-  Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_t w, uint16_t h, SPIClass *spiClass, int8_t cs,
+  Adafruit_SPITFT_DBI_TYPE_C(uint16_t w, uint16_t h, SPIClass *spiClass, int8_t cs,
                   int8_t dc, int8_t rst = -1);
 #endif // end !ESP8266
 
@@ -136,13 +136,13 @@ public:
   // pins (d0, wr, dc), 3 optional pins (cs, rst, rd). 16-bit parallel
   // isn't even fully implemented but the 'wide' flag was added as a
   // required argument to avoid ambiguity with other constructors.
-  Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(uint16_t w, uint16_t h, tftBusWidth busWidth, int8_t d0,
+  Adafruit_SPITFT_DBI_TYPE_C(uint16_t w, uint16_t h, tftBusWidth busWidth, int8_t d0,
                   int8_t wr, int8_t dc, int8_t cs = -1, int8_t rst = -1,
                   int8_t rd = -1);
 
   // DESTRUCTOR ----------------------------------------------------------
 
-  ~Adafruit_SPITFT_DBI_TYPE_C_MODIFIED(){};
+  ~Adafruit_SPITFT_DBI_TYPE_C(){};
 
   // CLASS MEMBER FUNCTIONS ----------------------------------------------
 
@@ -208,7 +208,6 @@ public:
                      uint16_t color);
   void writeFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) override;
   void writeFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) override;
-  void writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color) override;
   // This is a new function, similar to writeFillRect() except that
   // all arguments MUST be onscreen, sorted and clipped. If higher-level
   // primitives can handle their own sorting/clipping, it avoids repeating
@@ -229,32 +228,9 @@ public:
   // solo -- that is, as graphics primitives in themselves, not invoked by
   // higher-level primitives (which should use the functions above).
   void drawPixel(int16_t x, int16_t y, uint16_t color);
-  virtual void drawRect(int16_t x, int16_t y, int16_t w, int16_t h,
-                        uint16_t color);
   void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
   void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
   void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
-  // void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
-  // void drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
-  // void drawCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername,
-  //                       uint16_t color);
-  // void fillCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
-  // void fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername,
-  //                       int16_t delta, uint16_t color);
-  // void drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2,
-  //                   int16_t y2, uint16_t color);
-  // void fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2,
-  //                   int16_t y2, uint16_t color);
-  // void drawRoundRect(int16_t x0, int16_t y0, int16_t w, int16_t h,
-  //                    int16_t radius, uint16_t color);
-  // void fillRoundRect(int16_t x0, int16_t y0, int16_t w, int16_t h,
-  //                    int16_t radius, uint16_t color);
-  // void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
-  //               uint16_t bg, uint8_t size);
-  // void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
-  //               uint16_t bg, uint8_t size_x, uint8_t size_y);
-  // void setTextSize(uint8_t sx, uint8_t sy);
-  // void setFont(const GFXfont *f = NULL);
   // A single-pixel push encapsulated in a transaction. I don't think
   // this is used anymore (BMP demos might've used it?) but is provided
   // for backward compatibility, consider it deprecated:
