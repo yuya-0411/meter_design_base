@@ -1,3 +1,10 @@
+#include <random>
+std::random_device rd;   // non-deterministic generator
+std::mt19937 gen(rd());  // to seed mersenne twister.
+std::uniform_int_distribution<> dist(0, 18);
+uint8_t speed = 0;
+uint8_t pre_speed = 0;
+
 #include <Ticker.h>
 #include <EEPROM.h>
 
@@ -23,10 +30,10 @@ const uint8_t display_bias_w = 35;
 
 uint16_t x_0 = 0;
 uint16_t y_0 = 0;
-uint16_t b_x = 182;
-uint16_t b_y = 125;
-uint16_t R  = 96;
-uint16_t r  = 5;
+const uint16_t b_x = 182;
+const uint16_t b_y = 125;
+const uint16_t R  = 96;
+const uint16_t r  = 5;
 
 uint16_t x_1;
 uint16_t y_1;
@@ -39,7 +46,7 @@ uint16_t y_2_old=0;
 
 ILI9327 display(DISPLAY_CS, DISPLAY_DC, &SPI, DISPLAY_RST);
 
-uint16_t winker_left_coor[6][2] = {
+const uint16_t winker_left_coor[6][2] = {
   {15, 35},
   {60, 15},
   {60, 55},
@@ -48,7 +55,7 @@ uint16_t winker_left_coor[6][2] = {
   {85, 15},
   {85, 55},
 };
-uint16_t winker_right_coor[6][2] = {
+const uint16_t winker_right_coor[6][2] = {
   {350, 35},
   {305, 15},
   {305, 55},
@@ -58,7 +65,52 @@ uint16_t winker_right_coor[6][2] = {
   {280, 55},
 };
 
-uint16_t color_table[] = {
+
+const uint16_t gauge1_list[19][2] = {
+  {R * cos( 90*PI/180) + b_x, R * sin( 90*PI/180) + b_y},
+  {R * cos(100*PI/180) + b_x, R * sin(100*PI/180) + b_y},
+  {R * cos(110*PI/180) + b_x, R * sin(110*PI/180) + b_y},
+  {R * cos(120*PI/180) + b_x, R * sin(120*PI/180) + b_y},
+  {R * cos(130*PI/180) + b_x, R * sin(130*PI/180) + b_y},
+  {R * cos(140*PI/180) + b_x, R * sin(140*PI/180) + b_y},
+  {R * cos(150*PI/180) + b_x, R * sin(150*PI/180) + b_y},
+  {R * cos(160*PI/180) + b_x, R * sin(160*PI/180) + b_y},
+  {R * cos(170*PI/180) + b_x, R * sin(170*PI/180) + b_y},
+  {R * cos(180*PI/180) + b_x, R * sin(180*PI/180) + b_y},
+  {R * cos(190*PI/180) + b_x, R * sin(190*PI/180) + b_y},
+  {R * cos(200*PI/180) + b_x, R * sin(200*PI/180) + b_y},
+  {R * cos(210*PI/180) + b_x, R * sin(210*PI/180) + b_y},
+  {R * cos(220*PI/180) + b_x, R * sin(220*PI/180) + b_y},
+  {R * cos(230*PI/180) + b_x, R * sin(230*PI/180) + b_y},
+  {R * cos(240*PI/180) + b_x, R * sin(240*PI/180) + b_y},
+  {R * cos(250*PI/180) + b_x, R * sin(250*PI/180) + b_y},
+  {R * cos(260*PI/180) + b_x, R * sin(260*PI/180) + b_y},
+  {R * cos(270*PI/180) + b_x, R * sin(270*PI/180) + b_y},
+};
+
+const uint16_t gauge2_list[19][2] = {
+  {R * cos(450*PI/180) + b_x, R * sin(450*PI/180) + b_y},
+  {R * cos(440*PI/180) + b_x, R * sin(440*PI/180) + b_y},
+  {R * cos(430*PI/180) + b_x, R * sin(430*PI/180) + b_y},
+  {R * cos(420*PI/180) + b_x, R * sin(420*PI/180) + b_y},
+  {R * cos(410*PI/180) + b_x, R * sin(410*PI/180) + b_y},
+  {R * cos(400*PI/180) + b_x, R * sin(400*PI/180) + b_y},
+  {R * cos(390*PI/180) + b_x, R * sin(390*PI/180) + b_y},
+  {R * cos(380*PI/180) + b_x, R * sin(380*PI/180) + b_y},
+  {R * cos(370*PI/180) + b_x, R * sin(370*PI/180) + b_y},
+  {R * cos(360*PI/180) + b_x, R * sin(360*PI/180) + b_y},
+  {R * cos(350*PI/180) + b_x, R * sin(350*PI/180) + b_y},
+  {R * cos(340*PI/180) + b_x, R * sin(340*PI/180) + b_y},
+  {R * cos(330*PI/180) + b_x, R * sin(330*PI/180) + b_y},
+  {R * cos(320*PI/180) + b_x, R * sin(320*PI/180) + b_y},
+  {R * cos(310*PI/180) + b_x, R * sin(310*PI/180) + b_y},
+  {R * cos(300*PI/180) + b_x, R * sin(300*PI/180) + b_y},
+  {R * cos(290*PI/180) + b_x, R * sin(290*PI/180) + b_y},
+  {R * cos(280*PI/180) + b_x, R * sin(280*PI/180) + b_y},
+  {R * cos(270*PI/180) + b_x, R * sin(270*PI/180) + b_y},
+};
+
+const uint16_t color_table[] = {
     ILI9327_BLACK,
     ILI9327_NAVY,
     ILI9327_DARKGREEN,
@@ -195,8 +247,6 @@ void setup()
     int W = 35;
     if(remained_battery > 0)
       display.fillRect(c_x, c_y-H*remained_battery-dH*(remained_battery-1), W, H, ILI9327_BLACK);
-    // else
-    //   display.fillRect(c_x, c_y-H*remained_battery, W, H, ILI9327_BLACK);
 
     if(charge){
       // display.fillRect(20+10*remained_battery, 210, 9, H, ILI9327_GREEN);
@@ -253,19 +303,19 @@ void setup()
   });
 
   // ODO
-  odo.attach(3.0, [](){
-    display.setFont(&FreeSans9pt7b);
-    display.setTextSize(1);
-    display.setTextColor(ILI9327_BLACK, ILI9327_BLACK);
-    display.setCursor(270,225);
-    display.println(odo_val);  // クリア
-    // display.setTextSize(3);
-    odo_val++;
-    display.setTextColor(ILI9327_CYAN, ILI9327_CYAN);               // 描画
-    display.setCursor(270,225);
-    display.println(odo_val);  // クリア
+  // odo.attach(60.0, [](){
+  //   display.setFont(&FreeSans9pt7b);
+  //   display.setTextSize(1);
+  //   display.setTextColor(ILI9327_BLACK, ILI9327_BLACK);
+  //   display.setCursor(270,225);
+  //   display.println(odo_val);  // クリア
+  //   // display.setTextSize(3);
+  //   odo_val++;
+  //   display.setTextColor(ILI9327_CYAN, ILI9327_CYAN);               // 描画
+  //   display.setCursor(270,225);
+  //   display.println(odo_val);  // クリア
+  // });
 
-  });
   delay(10);
 }
 
@@ -285,86 +335,113 @@ bool flag=true;
 
 void loop()
 {
+  speed = dist(gen);
   // 文字をいい感じ配置するためのバイアス
-  if(max_mph*(i-min_range)/(max_range - min_range) != max_mph*(oi-min_range)/(max_range - min_range)){
-    if(max_mph*(oi-min_range)/(max_range - min_range) < 10){
-      aa = 50;
-      }
-    else{
-      aa = 0; 
-      }
-    if(max_mph*(i-min_range)/(max_range - min_range) < 10){
-      bb = 50;
-      }
-    else{
-      bb = 0; 
-      }
+  // if(max_mph*(i-min_range)/(max_range - min_range) != max_mph*(oi-min_range)/(max_range - min_range)){
+  //   if(max_mph*(oi-min_range)/(max_range - min_range) < 10){
+  //     aa = 50;
+  //     }
+  //   else{
+  //     aa = 0; 
+  //     }
+  //   if(max_mph*(i-min_range)/(max_range - min_range) < 10){
+  //     bb = 50;
+  //     }
+  //   else{
+  //     bb = 0; 
+  //     }
 
   //   //デジタル表示 
-    display.setFont(&custom_windows_arial_24);
-    display.setTextSize(2);
 
     // 文字消去処理
     display.setTextColor(ILI9327_BLACK, ILI9327_BLACK);
     display.setCursor(160+aa-display_bias_w,150);
-    display.println(max_mph*(oi-min_range)/(max_range - min_range));  // クリア
+    display.setFont(&custom_windows_arial_24);
+    display.setTextSize(2);
+    // display.println(max_mph*(oi-min_range)/(max_range - min_range));  // クリア
+    display.println(pre_speed);  // クリア
     // 文字書き込み処理
     display.setTextColor(ILI9327_CYAN, ILI9327_CYAN);               // 描画
     display.setCursor(160+bb-display_bias_w,150);
-    display.println(max_mph*(i-min_range)/(max_range - min_range));
-  }
-  oi = i;
+    display.setFont(&custom_windows_arial_24);
+    display.setTextSize(2);
+    // display.println(max_mph*(i-min_range)/(max_range - min_range));
+    display.println(speed);
+  // }
+  // oi = i;
 
-  if(!flag){
-    // display.drawLine(x_1, y_1, x_2_old, y_2_old, ILI9327_BLACK);
-    display.fillCircle(x_1_old, y_1_old, r, ILI9327_BLACK);
-    display.fillCircle(x_2_old, y_2_old, r, ILI9327_BLACK);
-  }
 
-  x_1 = (uint16_t)(R * cos(gauge1*PI/180.0) + b_x);
-  y_1 = (uint16_t)(R * sin(gauge1*PI/180.0) + b_y);
-  x_2 = (uint16_t)(R * cos(gauge2*PI/180.0) + b_x);
-  y_2 = (uint16_t)(R * sin(gauge2*PI/180.0) + b_y);
+  // if(!flag){
+  //   // display.drawLine(x_1, y_1, x_2_old, y_2_old, ILI9327_BLACK);
+  //   display.fillCircle(x_1_old, y_1_old, r, ILI9327_BLACK);
+  //   display.fillCircle(x_2_old, y_2_old, r, ILI9327_BLACK);
+  // }
+
+  // x_1 = gauge1_list[max_mph*(i-min_range)/(max_range - min_range)][0];//(uint16_t)(R * cos(gauge1*PI/180) + b_x);
+  // y_1 = gauge1_list[max_mph*(i-min_range)/(max_range - min_range)][1];//(uint16_t)(R * sin(gauge1*PI/180) + b_y);
+  // x_2 = gauge2_list[max_mph*(i-min_range)/(max_range - min_range)][0];//(uint16_t)(R * cos(gauge2*PI/180) + b_x);
+  // y_2 = gauge2_list[max_mph*(i-min_range)/(max_range - min_range)][1];//(uint16_t)(R * sin(gauge2*PI/180) + b_y);
+ 
+  x_1 = gauge1_list[speed][0];//(uint16_t)(R * cos(gauge1*PI/180) + b_x);
+  y_1 = gauge1_list[speed][1];//(uint16_t)(R * sin(gauge1*PI/180) + b_y);
+  x_2 = gauge2_list[speed][0];//(uint16_t)(R * cos(gauge2*PI/180) + b_x);
+  y_2 = gauge2_list[speed][1];//(uint16_t)(R * sin(gauge2*PI/180) + b_y);
   x_1_old = x_1;
   y_1_old = y_1;
   x_2_old = x_2;
   y_2_old = y_2;
 
-  // display.drawLine(x_1, y_1, x_2, y_2, ILI9327_GREEN);
+  // for(int index=18; index > max_mph*(i-min_range)/(max_range - min_range)-1; index--){
+  for(int index=18; index > speed-1; index--){
+    
+    display.fillCircle(
+                        gauge1_list[index][0], 
+                        gauge1_list[index][1], 
+                        r, ILI9327_BLACK);
+    display.fillCircle(
+                        gauge2_list[index][0], 
+                        gauge2_list[index][1], 
+                        r, ILI9327_BLACK);
+  }
 
-  display.fillCircle(x_1, y_1, r, ILI9327_CYAN);
-  display.fillCircle(x_2, y_2, r, ILI9327_CYAN);
+  // for(int index=0; index < max_mph*(i-min_range)/(max_range - min_range); index++){
+  for(int index=0; index < speed; index++){
 
-  delay(50);
+    display.fillCircle(
+                        gauge1_list[index][0], 
+                        gauge1_list[index][1], 
+                        r, ILI9327_CYAN);
+    display.fillCircle(
+                        gauge2_list[index][0], 
+                        gauge2_list[index][1], 
+                        r, ILI9327_CYAN);
+  }
 
-    gauge1 = 90 + 10*max_mph*(i-min_range)/(max_range - min_range);
-    gauge2 = 450 - 10*max_mph*(i-min_range)/(max_range - min_range);
-  // if(gauge_flag){
-  //   gauge1 = gauge1 + 30;
-  //   gauge2 = gauge2 - 30;
-  // }
-  // else{
-  //   gauge1 = gauge1 - 30;
-  //   gauge2 = gauge2 + 30;
-  // }
 
-  // if (gauge1>450)
-  //   gauge_flag = false;
-  // else if (gauge1<270)
-  //   gauge_flag = true;
+  delay(500);
+  pre_speed = speed;
+
 
   if(flag){
     i++;
-    // gauge1 = gauge1 + 10;
-    // gauge2 = gauge2 - 10;
   }
   else{
     i--;
-    // gauge1 = gauge1 - 10;
-    // gauge2 = gauge2 + 10;
   }
   if (i>max_range)
     flag = false;
   else if (i<min_range)
     flag = true;
+
+
+  display.setFont(&FreeSans9pt7b);
+  display.setTextSize(1);
+  display.setTextColor(ILI9327_BLACK, ILI9327_BLACK);
+  display.setCursor(270,225);
+  display.println(odo_val);  // クリア
+  odo_val++;
+  display.setTextColor(ILI9327_CYAN, ILI9327_CYAN);               // 描画
+  display.setCursor(270,225);
+  display.println(odo_val);  // クリア
+
 }
