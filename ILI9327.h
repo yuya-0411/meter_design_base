@@ -88,6 +88,7 @@
 #define ILI9327_ORANGE 0xFD20      ///< 255, 165,   0
 #define ILI9327_GREENYELLOW 0xAFE5 ///< 173, 255,  41
 #define ILI9327_PINK 0xFC18        ///< 255, 130, 198
+#define ILI9327_BACK_COLOR 0x090404        ///< 255, 130, 198
 
 class ILI9327 : public Adafruit_SPITFT_DBI_TYPE_C {
  private:
