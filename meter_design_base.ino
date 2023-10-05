@@ -15,7 +15,7 @@ uint8_t pre_speed = 0;
 
 // #include <Fonts\FreeSansBold24pt7b.h>
 // #include <Fonts\DSEG7_Modern_Bold_24.h>
-#include "custom_windows_arial_24.h"
+#include "googleFont48pt.h"
 #include <Fonts\FreeSans9pt7b.h>
 
 #define DISPLAY_CS 5
@@ -356,15 +356,15 @@ void loop()
     // 文字消去処理
     display.setTextColor(ILI9327_BLACK, ILI9327_BLACK);
     display.setCursor(160+aa-display_bias_w,150);
-    display.setFont(&custom_windows_arial_24);
-    display.setTextSize(2);
+    display.setFont(&NotoSansJP_Bold48pt7b);
+    display.setTextSize(1);
     // display.println(max_mph*(oi-min_range)/(max_range - min_range));  // クリア
     display.println(pre_speed);  // クリア
     // 文字書き込み処理
     display.setTextColor(ILI9327_CYAN, ILI9327_CYAN);               // 描画
     display.setCursor(160+bb-display_bias_w,150);
-    display.setFont(&custom_windows_arial_24);
-    display.setTextSize(2);
+    display.setFont(&NotoSansJP_Bold48pt7b);
+    display.setTextSize(1);
     // display.println(max_mph*(i-min_range)/(max_range - min_range));
     display.println(speed);
   // }
