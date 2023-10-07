@@ -2,8 +2,10 @@
 std::random_device rd;   // non-deterministic generator
 std::mt19937 gen(rd());  // to seed mersenne twister.
 std::uniform_int_distribution<> dist(0, 18);
+std::uniform_int_distribution<> battery_dist(0, 4);
 uint8_t speed = 0;
 uint8_t pre_speed = 0;
+uint8_t BATTERY_MAX = 4;
 
 #include <Ticker.h>
 #include <EEPROM.h>
@@ -135,7 +137,6 @@ const uint16_t color_table[] = {
 
 
 
-
 Ticker winker_left;
 Ticker winker_right;
 int winker_count_left = 0;
@@ -239,34 +240,59 @@ void setup()
    });
 
     // バッテリ残量
-    battery.attach(1.0, [](){
+    battery.attach(2.0, [](){
     int c_x = 20;
     int c_y = 170;
     int H = 19;
     int dH = 2.5;
     int W = 35;
-    if(remained_battery > 0)
-      display.fillRect(c_x, c_y-H*remained_battery-dH*(remained_battery-1), W, H, ILI9327_BLACK);
+    uint8_t battery_remain = battery_dist(gen);
+    
+    uint16_t color;
+    if(battery_remain == 2)       color = ILI9327_YELLOW;
+    else if(battery_remain == 1)  color = ILI9327_RED;
+    else                          color = ILI9327_GREEN;
 
-    if(charge){
-      // display.fillRect(20+10*remained_battery, 210, 9, H, ILI9327_GREEN);
-      if(remained_battery > 0)
-        display.fillRect(c_x, c_y-H*remained_battery-dH*(remained_battery-1), W, H, ILI9327_GREEN);
+    for(int i=1; i<BATTERY_MAX+1; i++)
+      // display.fillRect(330-display_bias_w+10*i, 210, 9, 20, ILI9327_GREEN);
+      display.fillRect(c_x, c_y-H*i-dH*i, W, H, color);
+    for(int i=BATTERY_MAX; i>battery_remain; i--)
+      // display.fillRect(330-display_bias_w+10*i, 210, 9, 20, ILI9327_BLACK);
+      display.fillRect(c_x, c_y-H*i-dH*i, W, H, ILI9327_BLACK);
+  //   switch (remained_battery)
+  //   {
+  //   case 1:
+  //     battery_color = 1;
+  //     break;
+  //   case 2:
+  //     battery_color = 2;
+  //     break;
+  //   default:
+  //     break;
+  //   }
 
-      remained_battery++;
-    }
-    else{
-      remained_battery--;
-    }
+  //   if(remained_battery > 0)
+  //     display.fillRect(c_x, c_y-H*remained_battery-dH*(remained_battery-1), W, H, ILI9327_BLACK);
 
-   if(remained_battery>4){
-    charge = false;
-    remained_battery = 4;
-   }
-  else if(remained_battery<0){
-    charge = true;
-    remained_battery = 0;
-  }
+  //   if(charge){
+  //     // display.fillRect(20+10*remained_battery, 210, 9, H, ILI9327_GREEN);
+  //     if(remained_battery > 0)
+  //       display.fillRect(c_x, c_y-H*remained_battery-dH*(remained_battery-1), W, H, battery_color_list[battery_color]);
+
+  //     remained_battery++;
+  //   }
+  //   else{
+  //     remained_battery--;
+  //   }
+
+  //  if(remained_battery>4){
+  //   charge = false;
+  //   remained_battery = 4;
+  //  }
+  // else if(remained_battery<0){
+  //   charge = true;
+  //   remained_battery = 0;
+  // }
   // Serial.println(remained_battery);
   });
 
@@ -337,19 +363,18 @@ void loop()
 {
   speed = dist(gen);
   // 文字をいい感じ配置するためのバイアス
-  // if(max_mph*(i-min_range)/(max_range - min_range) != max_mph*(oi-min_range)/(max_range - min_range)){
-  //   if(max_mph*(oi-min_range)/(max_range - min_range) < 10){
-  //     aa = 50;
-  //     }
-  //   else{
-  //     aa = 0; 
-  //     }
-  //   if(max_mph*(i-min_range)/(max_range - min_range) < 10){
-  //     bb = 50;
-  //     }
-  //   else{
-  //     bb = 0; 
-  //     }
+    if(pre_speed < 10){
+      aa = 50/2;
+      }
+    else{
+      aa = 0; 
+      }
+    if(speed < 10){
+      bb = 50/2;
+      }
+    else{
+      bb = 0; 
+      }
 
   //   //デジタル表示 
 
